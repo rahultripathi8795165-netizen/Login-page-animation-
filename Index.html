@@ -3,17 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lamp Login Animation</title>
-    <!-- CSS file ko link kiya gaya hai -->
-    <link rel="stylesheet" href="style.css">
-    <!-- Tailwind for utility spacing (Optional but helpful) -->
+    <title>Lamp Toggle Login - Exact Animation</title>
+    <!-- Tailwind CSS for layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="flex items-center justify-center min-h-screen">
+    <style>
+        :root {
+            --bg-dark: #0f1113;
+            --bg-light: #1a1d21;
+            --lamp-off: #2c2c2c;
+            --lamp-on: #4ade80; /* Video wala exact green */
+        }
 
-    <div class="flex flex-col md:flex-row items-center gap-24">
-        <!-- Lamp UI Section -->
-        <div class="lamp-container">
+        body {
+            background-color: var(--bg-dark);
+            transition: background-color 0.5s ease;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: sans-serif;
+        }
+
+        /* Body class when light is ON */
+        body.is-lit {
+            background-color: var(--bg-light);
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                gap: 120px;
+            }
+        }
+
+        /* Lamp Design */
+        .lamp-box {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .shade {
+            width: 150px;
+            height: 120px;
+            background: var(--lamp-off);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+            z-index: 20;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body.is-lit .shade {
+            background: var(--lamp-on);
+            box-shadow: 0 0 80px rgba(74, 222, 128, 0.3);
+        }
+
+        /* Face on the lamp */
+        .eyes {
+            display: flex;
+            gap: 25px;
+            margin-top: 10px;
+        }
+
+        .eye {
+            width: 14px;
+            height: 2px; /* Sleeping state */
+            background: #000;
+            transition: all 0.3s ease;
+        }
+
+        body.is-lit .eye {
+            height: 14px; /* Waking up state */
+            border-radius: 50%;
+        }
+
+        .mouth {
+            width: 18px;
+            height: 2px;
+            background: #000;
+            margin-top: 12px;
+            border-radius: 0 0 10px 10px;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        body.is-lit .mouth {
+            opacity: 1;
+            height: 10px;
+        }
+
+        /* Lamp stand and base */
+        .stand {
+            width: 10px;
+            height: 140px;
+            background: #252525;
+            margin-top: -5px;
+        }
+
+        .base {
+            width: 100px;
+            height: 12px;
+            background: #252525;
+            border-radius: 10px;
+        }
+
+        /* The Pull String */
+        .pull-string {
+            position: absolute;
+            left: 35px;
+            top: 110px;
+            cursor: pointer;
+            z-index: 30;
+            transition: transform 0.1s ease;
+        }
+
+        .pull-string:active {
+            transform: translateY(20px);
+        }
+
+        .string-line {
+            width: 2px;
+            height: 80px;
+            background: #555;
+            margin-left: 6px;
+        }
+
+        .string-knob {
+            width: 14px;
+            height: 14px;
+            background: #888;
+            border-radius: 50%;
+        }
+
+        /* Light Beam Glow */
+        .beam {
+            position: absolute;
+            top: 120px;
+            width: 350px;
+            height: 600px;
+            background: radial-gradient(ellipse at top, rgba(74, 222, 128, 0.15) 0%, transparent 75%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease;
+        }
+
+        body.is-lit .beam {
+            opacity: 1;
+        }
+
+        /* Login Card Animation */
+        .login-card {
+            background: #1e2124;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            width: 380px;
+            opacity: 0;
+            transform: scale(0.8) translateX(50px);
+            transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #333;
+        }
+
+        body.is-lit .login-card {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+            border-color: var(--lamp-on);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Input Styling */
+        .input-box {
+            width: 100%;
+            background: #2a2d31;
+            border: 1px solid #3d4146;
+            padding: 14px;
+            border-radius: 10px;
+            color: white;
+            outline: none;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .input-box:focus {
+            border-color: var(--lamp-on);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--lamp-on);
+            color: #121417;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Lamp UI -->
+        <div class="lamp-box">
             <div class="shade">
                 <div class="eyes">
                     <div class="eye"></div>
@@ -24,42 +234,52 @@
             <div class="stand"></div>
             <div class="base"></div>
             
-            <!-- Pulling String -->
-            <div class="pull-string" id="string-btn">
+            <!-- Pulling Interaction -->
+            <div class="pull-string" id="string-trigger">
                 <div class="string-line"></div>
                 <div class="string-knob"></div>
             </div>
 
-            <!-- Light Glow -->
-            <div class="light-beam"></div>
+            <!-- The Glow -->
+            <div class="beam"></div>
         </div>
 
-        <!-- Login Card Section -->
+        <!-- Login Card (Hidden initially) -->
         <div class="login-card">
             <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p class="text-gray-400 mb-8">Turn on the lamp to login</p>
-
-            <div class="input-group">
-                <label>Username</label>
-                <input type="text" class="input-field" placeholder="Enter username">
+            <p class="text-gray-400 mb-8 text-sm">Please turn on the lamp to login.</p>
+            
+            <div class="space-y-1">
+                <label class="block text-xs text-gray-500 uppercase font-bold mb-2">Username</label>
+                <input type="text" class="input-box" placeholder="Your Username">
             </div>
-
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" class="input-field" placeholder="••••••••">
+            
+            <div class="space-y-1">
+                <label class="block text-xs text-gray-500 uppercase font-bold mb-2">Password</label>
+                <input type="password" class="input-box" placeholder="••••••••">
             </div>
-
+            
             <button class="login-btn">Login</button>
             
             <div class="mt-6 flex justify-between text-xs text-gray-500">
-                <a href="#" class="hover:text-green-400 transition">Forgot Password?</a>
-                <a href="#" class="hover:text-green-400 transition">Create Account</a>
+                <a href="#" class="hover:text-green-400">Forgot Password?</a>
+                <a href="#" class="hover:text-green-400">Create Account</a>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript file ko link kiya gaya hai -->
-    <script src="script.js"></script>
+    <script>
+        // Select the string and the body
+        const string = document.getElementById('string-trigger');
+        const body = document.body;
+
+        // Add click event to the pull string
+        string.addEventListener('click', () => {
+            // Toggle the 'is-lit' class
+            body.classList.toggle('is-lit');
+        });
+    </script>
 </body>
 </html>
+
 
